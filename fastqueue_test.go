@@ -3,6 +3,7 @@ package persistentqueue
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestFastQueue(t *testing.T) {
@@ -10,11 +11,13 @@ func TestFastQueue(t *testing.T) {
 	dir := fq.Dirname()
 	fmt.Println(dir)
 
-	fq.MustWriteBlock([]byte("{__name__=abc1}"))
-	fq.MustWriteBlock([]byte("{__name__=abc2}"))
-	fq.MustWriteBlock([]byte("{__name__=abc3}"))
-	fq.MustWriteBlock([]byte("{__name__=abc4}"))
-	fq.MustWriteBlock([]byte("{__name__=abc5}"))
+	go func() {
+		for i := 0; i < 100; i++ {
+			fq.MustWriteBlock([]byte(fmt.Sprintf("{__name__=abc%d}", i)))
+			time.Sleep(time.Millisecond * 200)
+		}
+		fq.MustClose()
+	}()
 
 	for {
 		block, ok := fq.MustReadBlock(nil)
