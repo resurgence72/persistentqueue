@@ -2,12 +2,16 @@ package persistentqueue
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/cespare/xxhash/v2"
 )
 
 func TestFastQueue(t *testing.T) {
-	fq := MustOpenFastQueue("./queue", "1:secret-url", 50, 524288000)
+	queuePath := filepath.Join("queue", "persistent-queue", fmt.Sprintf("0_%016X", xxhash.Sum64([]byte("remoteAddr"))))
+	fq := MustOpenFastQueue(queuePath, "1:secret-url", 3200, 524288000)
 	dir := fq.Dirname()
 	fmt.Println(dir)
 
